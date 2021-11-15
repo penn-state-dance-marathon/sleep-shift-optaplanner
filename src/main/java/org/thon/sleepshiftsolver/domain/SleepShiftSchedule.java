@@ -8,6 +8,7 @@ import org.optaplanner.core.api.domain.solution.PlanningScore;
 import org.optaplanner.core.api.domain.solution.PlanningSolution;
 import org.optaplanner.core.api.domain.solution.ProblemFactCollectionProperty;
 import org.optaplanner.core.api.domain.valuerange.ValueRangeProvider;
+import org.optaplanner.core.api.score.buildin.hardmediumsoft.HardMediumSoftScore;
 import org.optaplanner.core.api.score.buildin.hardsoft.HardSoftScore;
 import org.thon.sleepshiftsolver.Constants;
 import org.thon.sleepshiftsolver.constraints.MaxBedConstraint;
@@ -31,7 +32,7 @@ public class SleepShiftSchedule {
     private List<User> userList;
 
     @PlanningScore
-    private HardSoftScore score;
+    private HardMediumSoftScore score;
 
     public List<MaxBedConstraint> maxBedConstraints;
     public List<MaxSleepingConstraint> maxSleepingConstraints;
@@ -69,7 +70,7 @@ public class SleepShiftSchedule {
 		return userList;
 	}
 
-	public HardSoftScore getScore() {
+	public HardMediumSoftScore getScore() {
 		return score;
 	}
 	

@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.optaplanner.core.api.score.buildin.hardmediumsoft.HardMediumSoftScore;
 import org.optaplanner.core.api.score.buildin.hardsoft.HardSoftScore;
 import org.optaplanner.core.api.score.stream.Constraint;
 import org.optaplanner.core.api.score.stream.ConstraintCollectors;
@@ -60,22 +61,22 @@ public class SleepShiftConstraintProvider implements ConstraintProvider {
 					Joiners.equal(User::getBed),
 					// form unique pairs
 					Joiners.lessThan(User::getId)
-				).penalize("Bed conflict", HardSoftScore.ONE_HARD);
+				).penalize("Bed conflict", HardMediumSoftScore.ONE_HARD);
     }
     
 
-    Constraint maxSleepingConflict(ConstraintFactory constraintFactory, List<String> usernames, int startTime, int endTime, int maxAsleep) {
-    	return constraintFactory.from(User.class)
-    			.filter((user) -> usernames.contains(user.getUsername()) && user.getSleepShiftStartTime() >= startTime && user.getSleepShiftEndTime() - 1 <= endTime)
-    			.join(User.class,
-    					Joiners.overlapping(User::getSleepShiftStartTime, User::getSleepShiftEndTime)
-					)
-    			.filter((user1, user2) -> usernames.contains(user1.getUsername()) &&
-    					usernames.contains(user2.getUsername()))
-    			.groupBy((user1, user2) -> user1, ConstraintCollectors.countBi())
-    			.filter((user, count) -> count > maxAsleep)
-    			.penalize("max sleeping " + String.join(",", usernames) + " " + startTime + " " + endTime, HardSoftScore.ONE_HARD);
-    }
+//    Constraint maxSleepingConflict(ConstraintFactory constraintFactory, List<String> usernames, int startTime, int endTime, int maxAsleep) {
+//    	return constraintFactory.from(User.class)
+//    			.filter((user) -> usernames.contains(user.getUsername()) && user.getSleepShiftStartTime() >= startTime && user.getSleepShiftEndTime() - 1 <= endTime)
+//    			.join(User.class,
+//    					Joiners.overlapping(User::getSleepShiftStartTime, User::getSleepShiftEndTime)
+//					)
+//    			.filter((user1, user2) -> usernames.contains(user1.getUsername()) &&
+//    					usernames.contains(user2.getUsername()))
+//    			.groupBy((user1, user2) -> user1, ConstraintCollectors.countBi())
+//    			.filter((user, count) -> count > maxAsleep)
+//    			.penalize("max sleeping " + String.join(",", usernames) + " " + startTime + " " + endTime, HardMediumSoftScore.ONE_HARD);
+//    }
 
     Constraint maxSleepingConflictInternal(ConstraintFactory constraintFactory) {
     	return constraintFactory.from(User.class)
@@ -85,14 +86,14 @@ public class SleepShiftConstraintProvider implements ConstraintProvider {
 					)
     			.groupBy((user1, user2) -> user1, ConstraintCollectors.countBi())
     			.filter((user, count) -> user.getSleepShift().isCountLargerThanLimitForMaxSleepingList(user, count))
-    			.penalize("Too many specific captains sleeping", HardSoftScore.ONE_HARD);
+    			.penalize("Too many specific captains sleeping", HardMediumSoftScore.ONE_MEDIUM);
     }
 
 
     Constraint maxBedConflictInternal(ConstraintFactory constraintFactory) {
     	return constraintFactory.from(User.class)
     			.filter((user) -> !user.getBed().canBeUsedAt(user.getSleepShiftStartTime()))
-    			.penalize("Max beds used", HardSoftScore.ONE_HARD);
+    			.penalize("Max beds used", HardMediumSoftScore.ONE_HARD);
     }
     
     /**
@@ -110,7 +111,7 @@ public class SleepShiftConstraintProvider implements ConstraintProvider {
 							user1.getSleepShiftStartTime() <= user2.getSleepShiftStartTime() - minDistance ||
 							user1.getSleepShiftStartTime() >= user2.getSleepShiftStartTime() + minDistance
 						))
-    			.penalize("12 hour between shifts min", HardSoftScore.ONE_HARD);
+    			.penalize("12 hour between shifts min", HardMediumSoftScore.ONE_MEDIUM);
     }
 
     /**
@@ -128,7 +129,7 @@ public class SleepShiftConstraintProvider implements ConstraintProvider {
 							user1.getSleepShiftStartTime() <= user2.getSleepShiftStartTime() - minDistance ||
 							user1.getSleepShiftStartTime() >= user2.getSleepShiftStartTime() + minDistance
 						))
-    			.penalize("20 hour between shifts preferred", HardSoftScore.ONE_SOFT);
+    			.penalize("20 hour between shifts preferred", HardMediumSoftScore.ONE_SOFT);
     }
     
 //    Constraint preferOvernight(ConstraintFactory constraintFactory) {

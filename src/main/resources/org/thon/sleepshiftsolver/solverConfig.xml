@@ -13,7 +13,7 @@
 
   <termination>
     <minutesSpentLimit>5</minutesSpentLimit>
-    <bestScoreLimit>0hard/-100soft</bestScoreLimit>
+    <bestScoreLimit>0hard/0medium/-100soft</bestScoreLimit>
     <scoreCalculationCountLimit>10000</scoreCalculationCountLimit>
   </termination>
 </solver>

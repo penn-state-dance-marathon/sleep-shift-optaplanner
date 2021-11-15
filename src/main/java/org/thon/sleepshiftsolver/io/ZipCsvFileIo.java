@@ -1,7 +1,9 @@
 package org.thon.sleepshiftsolver.io;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
@@ -28,6 +30,11 @@ public class ZipCsvFileIo implements SolutionFileIO<SleepShiftSchedule> {
 	public String getInputFileExtension() {
 		return "zip";
 	}
+	
+	@Override
+	public String getOutputFileExtension() {
+		return "csv";
+	}
 
 	@Override
 	public SleepShiftSchedule read(File inputSolutionFile) {
@@ -42,25 +49,9 @@ public class ZipCsvFileIo implements SolutionFileIO<SleepShiftSchedule> {
 			ZipFile file = new ZipFile(inputSolutionFile);
 			Enumeration<? extends ZipEntry> entries = file.entries();
 
-			// Captains.csv
-			ZipEntry captainsCsv = file.getEntry("captains.csv");
-			BufferedReader reader = new BufferedReader(new InputStreamReader(file.getInputStream(captainsCsv)));
-			while (reader.ready()) {
-				String[] line = reader.readLine().split(",");
-				User shift1 = new User(line[0], 1);
-				shift1.name = line[1];
-				shift1.committee = line[2];
-				User shift2 = new User(line[0], 2);
-				shift2.name = line[1];
-				shift2.committee = line[2];
-				userList.add(shift1);
-				userList.add(shift2);
-			}
-			reader.close();
-
 			// Schedule.csv
 			ZipEntry scheduleCsv = file.getEntry("schedule.csv");
-			reader = new BufferedReader(new InputStreamReader(file.getInputStream(scheduleCsv)));
+			BufferedReader reader = new BufferedReader(new InputStreamReader(file.getInputStream(scheduleCsv)));
 			while (reader.ready()) {
 				String[] line = reader.readLine().split(",");
 				maxBedConstraints.add(new MaxBedConstraint(
@@ -92,6 +83,33 @@ public class ZipCsvFileIo implements SolutionFileIO<SleepShiftSchedule> {
 						line[0],
 						Integer.parseInt(line[1])));
 			}
+			reader.close();
+
+			// Captains.csv
+			ZipEntry captainsCsv = file.getEntry("captains.csv");
+			reader = new BufferedReader(new InputStreamReader(file.getInputStream(captainsCsv)));
+			while (reader.ready()) {
+				String[] line = reader.readLine().split(",");
+				// Only create this if the user does not have a static shift!
+				boolean createUser = true;
+				for (StaticShift staticshift : staticShifts) {
+					if (staticshift.username.equals(line[0])) {
+						createUser = false;
+						break;
+					}
+				}
+				if (createUser) {
+					User shift1 = new User(line[0], 1);
+					shift1.name = line[1];
+					shift1.committee = line[2];
+					User shift2 = new User(line[0], 2);
+					shift2.name = line[1];
+					shift2.committee = line[2];
+					userList.add(shift1);
+					userList.add(shift2);
+				}				
+			}
+			reader.close();
 			file.close();
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -143,8 +161,21 @@ public class ZipCsvFileIo implements SolutionFileIO<SleepShiftSchedule> {
 
 	@Override
 	public void write(SleepShiftSchedule solution, File outputSolutionFile) {
-		// TODO Auto-generated method stub
-		
+		try {
+			BufferedWriter writer = new BufferedWriter(new FileWriter(outputSolutionFile));
+			for (User u : solution.getUserList()) {
+				writer.write(u.getUsername());
+				writer.write(",");
+				writer.write(String.valueOf(u.getSleepShiftStartTime()));
+				writer.write(",");
+				writer.write(String.valueOf(u.getBed().getId()));
+				writer.newLine();
+			}
+			writer.close();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 }
