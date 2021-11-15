@@ -39,6 +39,11 @@ public class SleepShiftConstraintProvider implements ConstraintProvider {
     	// Hard Constraints
     	constraints.add(bedConflict(constraintFactory));
     	constraints.add(maxBedConflictInternal(constraintFactory));
+    	constraints.add(maxSleepingConflictInternal(constraintFactory));
+    	constraints.add(shiftSeparationHardConstraint(constraintFactory));
+    	
+    	// Soft constraints
+    	constraints.add(shiftSeparationSoftConstraint(constraintFactory));
     	
     	Constraint[] array = new Constraint[constraints.size()];
     	array = constraints.toArray(array);
@@ -72,6 +77,17 @@ public class SleepShiftConstraintProvider implements ConstraintProvider {
     			.penalize("max sleeping " + String.join(",", usernames) + " " + startTime + " " + endTime, HardSoftScore.ONE_HARD);
     }
 
+    Constraint maxSleepingConflictInternal(ConstraintFactory constraintFactory) {
+    	return constraintFactory.from(User.class)
+    			.join(User.class,
+    					Joiners.overlapping(User::getSleepShiftStartTime, User::getSleepShiftEndTime),
+    					Joiners.filtering((user1, user2) -> user1.getSleepShift().bothUsersInMaxSleepingList(user1, user2))
+					)
+    			.groupBy((user1, user2) -> user1, ConstraintCollectors.countBi())
+    			.filter((user, count) -> user.getSleepShift().isCountLargerThanLimitForMaxSleepingList(user, count))
+    			.penalize("Too many specific captains sleeping", HardSoftScore.ONE_HARD);
+    }
+
 
     Constraint maxBedConflictInternal(ConstraintFactory constraintFactory) {
     	return constraintFactory.from(User.class)
@@ -79,5 +95,45 @@ public class SleepShiftConstraintProvider implements ConstraintProvider {
     			.penalize("Max beds used", HardSoftScore.ONE_HARD);
     }
     
+    /**
+     * The 2 shifts for a single captain must be at least 12 hours apart.
+     * @param constraintFactory
+     * @return
+     */
+    Constraint shiftSeparationHardConstraint(ConstraintFactory constraintFactory) {
+    	int minDistance = 2 * 12; // 12 hours
+    	return constraintFactory.from(User.class)
+    			.join(User.class,
+					Joiners.equal(User::getUsername)
+				).filter((user1, user2) -> user1.getShiftNumber() != user2.getShiftNumber() &&
+						!(
+							user1.getSleepShiftStartTime() <= user2.getSleepShiftStartTime() - minDistance ||
+							user1.getSleepShiftStartTime() >= user2.getSleepShiftStartTime() + minDistance
+						))
+    			.penalize("12 hour between shifts min", HardSoftScore.ONE_HARD);
+    }
+
+    /**
+     * The 2 shifts for a single captain should be at least 20 hours apart.
+     * @param constraintFactory
+     * @return
+     */
+    Constraint shiftSeparationSoftConstraint(ConstraintFactory constraintFactory) {
+    	int minDistance = 2 * 20; // 20 hours
+    	return constraintFactory.from(User.class)
+    			.join(User.class,
+					Joiners.equal(User::getUsername)
+				).filter((user1, user2) -> user1.getShiftNumber() != user2.getShiftNumber() &&
+						!(
+							user1.getSleepShiftStartTime() <= user2.getSleepShiftStartTime() - minDistance ||
+							user1.getSleepShiftStartTime() >= user2.getSleepShiftStartTime() + minDistance
+						))
+    			.penalize("20 hour between shifts preferred", HardSoftScore.ONE_SOFT);
+    }
+    
+//    Constraint preferOvernight(ConstraintFactory constraintFactory) {
+//    	return constraintFactory.from(User.class)
+//    			.filter((user) -> user.getSleepShiftStartTime() > 8 and user.getSl)
+//    }
 
 }

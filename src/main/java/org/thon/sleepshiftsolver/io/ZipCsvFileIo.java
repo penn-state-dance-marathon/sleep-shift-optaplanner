@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.zip.ZipEntry;
@@ -14,6 +15,7 @@ import org.optaplanner.persistence.common.api.domain.solution.SolutionFileIO;
 import org.thon.sleepshiftsolver.constraints.BedCannotBeUsedRange;
 import org.thon.sleepshiftsolver.constraints.MaxBedConstraint;
 import org.thon.sleepshiftsolver.constraints.MaxSleepingConstraint;
+import org.thon.sleepshiftsolver.constraints.MaxSleepingList;
 import org.thon.sleepshiftsolver.constraints.StaticShift;
 import org.thon.sleepshiftsolver.domain.Bed;
 import org.thon.sleepshiftsolver.domain.SleepShift;
@@ -68,10 +70,10 @@ public class ZipCsvFileIo implements SolutionFileIO<SleepShiftSchedule> {
 			while (reader.ready()) {
 				String[] line = reader.readLine().split(",(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)", -1);
 				maxSleepingConstraints.add(new MaxSleepingConstraint(
-						line[0].split(","),
-						Integer.parseInt(line[1]),
+						line[0].replace("\"", "").split(","),
 						Integer.parseInt(line[2]),
-						Integer.parseInt(line[3])));
+						Integer.parseInt(line[3]),
+						Integer.parseInt(line[1])));
 			}
 			reader.close();
 
@@ -120,7 +122,15 @@ public class ZipCsvFileIo implements SolutionFileIO<SleepShiftSchedule> {
 				result.getBedList().get(i).cannotBeUsedDuring.add(new BedCannotBeUsedRange(constraint.startTime, constraint.endTime));
 			}
 		}
-		result.maxSleepingConstraints = maxSleepingConstraints;
+		for (MaxSleepingConstraint constraint : maxSleepingConstraints) {
+			for (int i = constraint.startTime; i <= constraint.endTime; i++) {
+				SleepShift shiftAtTime = result.getSleepShiftAt(i);
+				if (shiftAtTime != null) {					
+					shiftAtTime.sleepingDuringThisTime.add(new MaxSleepingList(Arrays.asList(constraint.usernames),
+							constraint.maxAsleep));
+				}
+			}
+		}
 		result.prettyPrint();
 		return result;
 	}

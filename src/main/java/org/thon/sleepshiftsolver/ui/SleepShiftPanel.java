@@ -116,8 +116,7 @@ public class SleepShiftPanel extends SolutionPanel<SleepShiftSchedule> {
 
     private void fillBedDesignationCells(SleepShiftSchedule solution) {
         for (User user : solution.getUserList()) {
-        	if (user.getSleepShift() != null && user.getBed() != null) {        		
-        		System.out.println(user);
+        	if (user.getSleepShift() != null && user.getBed() != null) {
         		JButton button = SwingUtils.makeSmallButton(new JButton(new UserAction(user)));
         		timeTablePanel.addCell(user.getSleepShift(), user.getBed(),
         				solution.getLastSleepShiftFrom(user.getSleepShift()), user.getBed(), button);

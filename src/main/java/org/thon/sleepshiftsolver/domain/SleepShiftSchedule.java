@@ -12,6 +12,7 @@ import org.optaplanner.core.api.score.buildin.hardsoft.HardSoftScore;
 import org.thon.sleepshiftsolver.Constants;
 import org.thon.sleepshiftsolver.constraints.MaxBedConstraint;
 import org.thon.sleepshiftsolver.constraints.MaxSleepingConstraint;
+import org.thon.sleepshiftsolver.constraints.MaxSleepingList;
 
 @PlanningSolution
 public class SleepShiftSchedule {
@@ -50,6 +51,15 @@ public class SleepShiftSchedule {
     public List<SleepShift> getSleepshiftList() {
 		return sleepshiftList;
 	}
+    
+    public SleepShift getSleepShiftAt(int startTime) {
+    	for (SleepShift shift : sleepshiftList) {
+    		if (shift.getStartTime() == startTime) {
+    			return shift;
+    		}
+    	}
+    	return null;
+    }
 
 	public List<Bed> getBedList() {
 		return bedList;
@@ -73,6 +83,11 @@ public class SleepShiftSchedule {
 //		System.out.println("Sleep shifts:");
 //		for (SleepShift s : sleepshiftList) {
 //			System.out.println("\t" + s.getStartTime());
+//			if (s.sleepingDuringThisTime.size() > 0) {
+//				for (MaxSleepingList maxS : s.sleepingDuringThisTime) {
+//					System.out.println(maxS);
+//				}
+//			}
 //		}
 		for (User u : userList) {
 			System.out.println("\t" + u.toString());
