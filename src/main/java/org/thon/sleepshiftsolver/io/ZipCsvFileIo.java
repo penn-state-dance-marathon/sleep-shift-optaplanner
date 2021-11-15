@@ -14,6 +14,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
 import org.optaplanner.persistence.common.api.domain.solution.SolutionFileIO;
+import org.thon.sleepshiftsolver.Constants;
 import org.thon.sleepshiftsolver.constraints.BedCannotBeUsedRange;
 import org.thon.sleepshiftsolver.constraints.MaxBedConstraint;
 import org.thon.sleepshiftsolver.constraints.MaxSleepingConstraint;
@@ -147,7 +148,7 @@ public class ZipCsvFileIo implements SolutionFileIO<SleepShiftSchedule> {
 			}
 		}
 		for (MaxSleepingConstraint constraint : maxSleepingConstraints) {
-			for (int i = constraint.startTime; i <= constraint.endTime; i++) {
+			for (int i = Math.max(constraint.startTime - Constants.SHIFT_LENGTH + 1, 0); i <= constraint.endTime; i++) {
 				SleepShift shiftAtTime = result.getSleepShiftAt(i);
 				if (shiftAtTime != null) {					
 					shiftAtTime.sleepingDuringThisTime.add(new MaxSleepingList(Arrays.asList(constraint.usernames),
