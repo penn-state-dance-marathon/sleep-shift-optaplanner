@@ -5,15 +5,23 @@ import static org.optaplanner.examples.common.swingui.timetable.TimeTablePanel.H
 import static org.optaplanner.examples.common.swingui.timetable.TimeTablePanel.HeaderRowKey.HEADER_ROW;
 
 import java.awt.BorderLayout;
+import java.awt.Cursor;
 import java.awt.event.ActionEvent;
+import java.io.File;
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 
 import javax.swing.AbstractAction;
+import javax.swing.Action;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 
+import org.optaplanner.core.api.solver.SolverFactory;
+import org.optaplanner.core.impl.solver.DefaultSolverFactory;
+import org.optaplanner.examples.common.app.CommonApp;
 import org.optaplanner.examples.common.swingui.SolutionPanel;
 import org.optaplanner.examples.common.swingui.timetable.TimeTablePanel;
 import org.optaplanner.swing.impl.SwingUtils;
@@ -39,7 +47,7 @@ public class SleepShiftPanel extends SolutionPanel<SleepShiftSchedule> {
 	public static final String LOGO_PATH = "/org/thon/sleepshiftsolver/dash.png";
 
     private TimeTablePanel<SleepShift, Bed> timeTablePanel;
-
+    
     public SleepShiftPanel() {
         setLayout(new BorderLayout());
         timeTablePanel = new TimeTablePanel<>();
@@ -53,7 +61,7 @@ public class SleepShiftPanel extends SolutionPanel<SleepShiftSchedule> {
         fillCells(solution);
         repaint(); // Hack to force a repaint of TimeTableLayout during "refresh screen while solving"
 	}
-	
+
 
     private void defineGrid(SleepShiftSchedule solution) {
         JButton footprint = SwingUtils.makeSmallButton(new JButton("Patient9999"));

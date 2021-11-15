@@ -16,11 +16,17 @@
 
 package org.thon.sleepshiftsolver.domain;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.optaplanner.core.api.domain.lookup.PlanningId;
+import org.thon.sleepshiftsolver.Constants;
+import org.thon.sleepshiftsolver.constraints.BedCannotBeUsedRange;
 
 public class Bed {
 
     private int id;
+    public List<BedCannotBeUsedRange> cannotBeUsedDuring = new ArrayList<>();
 
     public Bed(int id) {
         this.id = id;
@@ -35,5 +41,14 @@ public class Bed {
     public int getId() {
         return id;
     }
+	
+	public boolean canBeUsedAt(int time) {
+		for (BedCannotBeUsedRange range : cannotBeUsedDuring) {
+			if (time <= range.endTime && time >= range.startTime - Constants.SHIFT_LENGTH + 1) {
+				return false;
+			}
+		}
+		return true;
+	}
 
 }

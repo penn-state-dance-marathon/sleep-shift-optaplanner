@@ -5,11 +5,7 @@ import javax.swing.JFrame;
 import org.optaplanner.examples.common.app.CommonApp;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.awt.CardLayout;
 import javax.swing.JButton;
-import java.awt.GridBagLayout;
-import javax.swing.BoxLayout;
-import java.awt.GridLayout;
 import java.awt.BorderLayout;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
@@ -39,7 +35,7 @@ public class SleepShiftSolverApp extends JFrame {
 //        SolverFactory<SleepShiftSchedule> solverFactory = SolverFactory.create(new SolverConfig()
 //                .withSolutionClass(SleepShiftSchedule.class)
 //                .withEntityClasses(User.class)
-//                .withConstraintProviderClass(TimeTableConstraintProvider.class)
+//                .withConstraintProviderClass(SleepShiftConstraintProvider.class)
 //                // The solver runs only for 5 seconds on this small dataset.
 //                // It's recommended to run for at least 5 minutes ("5m") otherwise.
 //                .withTerminationSpentLimit(Duration.ofSeconds(5)));

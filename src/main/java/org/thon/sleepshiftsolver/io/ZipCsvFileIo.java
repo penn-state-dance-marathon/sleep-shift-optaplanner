@@ -11,6 +11,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
 import org.optaplanner.persistence.common.api.domain.solution.SolutionFileIO;
+import org.thon.sleepshiftsolver.constraints.BedCannotBeUsedRange;
 import org.thon.sleepshiftsolver.constraints.MaxBedConstraint;
 import org.thon.sleepshiftsolver.constraints.MaxSleepingConstraint;
 import org.thon.sleepshiftsolver.constraints.StaticShift;
@@ -114,6 +115,11 @@ public class ZipCsvFileIo implements SolutionFileIO<SleepShiftSchedule> {
 		
 		SleepShiftSchedule result = new SleepShiftSchedule(sleepShifts, bedList, userList);
 		result.maxBedConstraints = MaxBedConstraint.processStaticShifts(maxBedConstraints, staticShifts);
+		for (MaxBedConstraint constraint : result.maxBedConstraints) {
+			for (int i = constraint.maxBeds; i < maxBeds; i++) {
+				result.getBedList().get(i).cannotBeUsedDuring.add(new BedCannotBeUsedRange(constraint.startTime, constraint.endTime));
+			}
+		}
 		result.maxSleepingConstraints = maxSleepingConstraints;
 		result.prettyPrint();
 		return result;

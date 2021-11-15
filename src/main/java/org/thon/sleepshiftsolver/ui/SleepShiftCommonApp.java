@@ -20,7 +20,7 @@ public class SleepShiftCommonApp extends CommonApp<SleepShiftSchedule> {
 	protected SleepShiftCommonApp() {
 		super("Sleep Shift Scheduler", "Schedule Sleep Shifts", SOLVER_CONFIG, DATA_DIR_NAME, SleepShiftPanel.LOGO_PATH);
 	}
-
+	
 	@Override
 	protected SolutionPanel<SleepShiftSchedule> createSolutionPanel() {
 		return new SleepShiftPanel();

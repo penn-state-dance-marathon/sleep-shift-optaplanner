@@ -68,7 +68,7 @@ public class MaxBedConstraint {
 		// Subtract static shift times
 		for (StaticShift shift : staticShifts) {
 			for (int time = shift.startTime; time < shift.startTime + Constants.SHIFT_LENGTH; time++) {
-				if (time <= bedsAtTime.size()) {
+				if (time < bedsAtTime.size()) {
 					bedsAtTime.get(time).maxBeds--;
 					if (bedsAtTime.get(time).maxBeds < 0) {
 						System.out.println("Too many beds used at time " + time);

@@ -38,17 +38,8 @@ public class SleepShiftConstraintProvider implements ConstraintProvider {
     	ArrayList<Constraint> constraints = new ArrayList<>();
     	// Hard Constraints
     	constraints.add(bedConflict(constraintFactory));
+    	constraints.add(maxBedConflictInternal(constraintFactory));
     	
-    	if (SleepShiftSchedule.getSingleton() != null) {
-        	for (MaxSleepingConstraint constraint : SleepShiftSchedule.getSingleton().maxSleepingConstraints) {
-        		constraints.add(maxSleepingConflict(constraintFactory, Arrays.asList(constraint.usernames),
-        				constraint.startTime, constraint.endTime, constraint.maxAsleep));
-        	}
-        	
-        	for (MaxBedConstraint constraint : SleepShiftSchedule.getSingleton().maxBedConstraints) {
-        		constraints.add(maxBedConflict(constraintFactory, constraint.startTime, constraint.endTime, constraint.maxBeds));
-        	}
-    	}
     	Constraint[] array = new Constraint[constraints.size()];
     	array = constraints.toArray(array);
         return array;
@@ -81,10 +72,11 @@ public class SleepShiftConstraintProvider implements ConstraintProvider {
     			.penalize("max sleeping " + String.join(",", usernames) + " " + startTime + " " + endTime, HardSoftScore.ONE_HARD);
     }
 
-    Constraint maxBedConflict(ConstraintFactory constraintFactory, int startTime, int endTime, int maxIndex) {
+
+    Constraint maxBedConflictInternal(ConstraintFactory constraintFactory) {
     	return constraintFactory.from(User.class)
-    			.filter((user) -> user.getBed().getId() >= maxIndex && user.getSleepShiftStartTime() >= startTime && user.getSleepShiftEndTime() - 1 <= endTime)
-    			.penalize("Max beds already used " + startTime + " " + endTime + " " + maxIndex, HardSoftScore.ONE_HARD);
+    			.filter((user) -> !user.getBed().canBeUsedAt(user.getSleepShiftStartTime()))
+    			.penalize("Max beds used", HardSoftScore.ONE_HARD);
     }
     
 
