@@ -49,6 +49,7 @@ public class SleepShiftPanel extends SolutionPanel<SleepShiftSchedule> {
     private TimeTablePanel<SleepShift, Bed> timeTablePanel;
     
     public SleepShiftPanel() {
+    	Constants.fillColorMap();
         setLayout(new BorderLayout());
         timeTablePanel = new TimeTablePanel<>();
         add(timeTablePanel, BorderLayout.CENTER);
@@ -118,6 +119,8 @@ public class SleepShiftPanel extends SolutionPanel<SleepShiftSchedule> {
         for (User user : solution.getUserList()) {
         	if (user.getSleepShift() != null && user.getBed() != null) {
         		JButton button = SwingUtils.makeSmallButton(new JButton(new UserAction(user)));
+        		button.setBackground(Constants.COLOR_DICT.get(user.committee));
+        		button.setForeground(Constants.FONT_DICT.get(user.committee));
         		timeTablePanel.addCell(user.getSleepShift(), user.getBed(),
         				solution.getLastSleepShiftFrom(user.getSleepShift()), user.getBed(), button);
         	}
@@ -130,7 +133,7 @@ public class SleepShiftPanel extends SolutionPanel<SleepShiftSchedule> {
         private final User user;
 
         public UserAction(User user) {
-            super(user.getId());
+            super(user.name);
             this.user = user;
             putValue(SHORT_DESCRIPTION, "<html>User: " + user.getId() + "<br/>"
                     + "Bed: " + user.getBed() + "<br/>"

@@ -28,6 +28,8 @@ public class User {
     private String id;
 
     private String username;
+    public String name;
+    public String committee;
     private int shiftNumber;
 
 

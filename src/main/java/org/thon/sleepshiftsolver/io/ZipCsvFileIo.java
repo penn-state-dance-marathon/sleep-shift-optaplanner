@@ -47,8 +47,14 @@ public class ZipCsvFileIo implements SolutionFileIO<SleepShiftSchedule> {
 			BufferedReader reader = new BufferedReader(new InputStreamReader(file.getInputStream(captainsCsv)));
 			while (reader.ready()) {
 				String[] line = reader.readLine().split(",");
-				userList.add(new User(line[0], 1));
-				userList.add(new User(line[0], 2));
+				User shift1 = new User(line[0], 1);
+				shift1.name = line[1];
+				shift1.committee = line[2];
+				User shift2 = new User(line[0], 2);
+				shift2.name = line[1];
+				shift2.committee = line[2];
+				userList.add(shift1);
+				userList.add(shift2);
 			}
 			reader.close();
 

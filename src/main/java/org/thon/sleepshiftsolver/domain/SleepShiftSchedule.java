@@ -103,8 +103,8 @@ public class SleepShiftSchedule {
 			if (shift.getStartTime() + Constants.SHIFT_LENGTH - 1 == shift2.getStartTime()) {
 				return shift2;
 			}
-			if (shift.getStartTime() > lastShift.getStartTime()) {
-				lastShift = shift;
+			if (shift2.getStartTime() > lastShift.getStartTime()) {
+				lastShift = shift2;
 			}
 		}
 		return lastShift;
