@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<solver xmlns="https://www.optaplanner.org/xsd/solver" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="https://www.optaplanner.org/xsd/solver https://www.optaplanner.org/xsd/solver/solver.xsd">
+  <!--<environmentMode>FULL_ASSERT</environmentMode>--><!-- To slowly prove there are no bugs in this code -->
+  <moveThreadCount>AUTO</moveThreadCount>
+
+  <solutionClass>org.thon.sleepshiftsolver.domain.SleepShiftSchedule</solutionClass>
+  <entityClass>org.thon.sleepshiftsolver.domain.User</entityClass>
+
+  <scoreDirectorFactory>
+    <constraintProviderClass>org.thon.sleepshiftsolver.solver.SleepShiftConstraintProvider</constraintProviderClass>
+  </scoreDirectorFactory>
+
+  <termination>
+    <minutesSpentLimit>5</minutesSpentLimit>
+    <bestScoreLimit>0hard/-100soft</bestScoreLimit>
+    <scoreCalculationCountLimit>10000</scoreCalculationCountLimit>
+  </termination>
+</solver>
