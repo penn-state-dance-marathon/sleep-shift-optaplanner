@@ -9,6 +9,7 @@ import org.optaplanner.core.api.domain.solution.PlanningSolution;
 import org.optaplanner.core.api.domain.solution.ProblemFactCollectionProperty;
 import org.optaplanner.core.api.domain.valuerange.ValueRangeProvider;
 import org.optaplanner.core.api.score.buildin.hardsoft.HardSoftScore;
+import org.thon.sleepshiftsolver.Constants;
 import org.thon.sleepshiftsolver.constraints.MaxBedConstraint;
 import org.thon.sleepshiftsolver.constraints.MaxSleepingConstraint;
 
@@ -64,15 +65,34 @@ public class SleepShiftSchedule {
 	
 	public void prettyPrint() {
 		System.out.println(" = = Solution = = ");
-		System.out.println("Beds:");
-		for (Bed b : bedList) {
-			System.out.println("\t" + b.getId());
+//		System.out.println("Beds:");
+//		for (Bed b : bedList) {
+//			System.out.println("\t" + b.getId());
+//		}
+//
+//		System.out.println("Sleep shifts:");
+//		for (SleepShift s : sleepshiftList) {
+//			System.out.println("\t" + s.getStartTime());
+//		}
+		for (User u : userList) {
+			System.out.println("\t" + u.toString());
 		}
-
-		System.out.println("Sleep shifts:");
-		for (SleepShift s : sleepshiftList) {
-			System.out.println("\t" + s.getStartTime());
+	}
+	
+	public SleepShift getLastSleepShiftFrom(SleepShift shift) {
+		if (shift == null) {
+			return null;
 		}
+		SleepShift lastShift = sleepshiftList.get(0);
+		for (SleepShift shift2 : sleepshiftList) {
+			if (shift.getStartTime() + Constants.SHIFT_LENGTH - 1 == shift2.getStartTime()) {
+				return shift2;
+			}
+			if (shift.getStartTime() > lastShift.getStartTime()) {
+				lastShift = shift;
+			}
+		}
+		return lastShift;
 	}
 	
 	public static SleepShiftSchedule getSingleton() {

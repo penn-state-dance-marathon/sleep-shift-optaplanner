@@ -41,7 +41,7 @@ public class User {
     }
 
     public User(String username, int shiftNumber) {
-        this.id = username + shiftNumber;
+        this.id = username + "-" + shiftNumber;
         this.username = username;
         this.sleepShift = null;
         this.bed = null;
