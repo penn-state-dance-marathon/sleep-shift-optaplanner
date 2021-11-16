@@ -27,9 +27,15 @@ public class Bed {
 
     private int id;
     public List<BedCannotBeUsedRange> cannotBeUsedDuring = new ArrayList<>();
-
+    private String name;
+    
     public Bed(int id) {
         this.id = id;
+    }
+    
+    public Bed(int id, String name) {
+    	this(id);
+    	this.name = name;
     }
 
     @Override
@@ -49,6 +55,14 @@ public class Bed {
 			}
 		}
 		return true;
+	}
+	
+	public String getName() {
+		if (name != null) {			
+			return name;
+		} else {
+			return this.toString();
+		}
 	}
 
 }

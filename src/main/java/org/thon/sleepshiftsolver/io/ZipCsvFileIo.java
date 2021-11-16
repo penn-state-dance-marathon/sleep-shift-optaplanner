@@ -54,11 +54,19 @@ public class ZipCsvFileIo implements SolutionFileIO<SleepShiftSchedule> {
 			ZipEntry scheduleCsv = file.getEntry("schedule.csv");
 			BufferedReader reader = new BufferedReader(new InputStreamReader(file.getInputStream(scheduleCsv)));
 			while (reader.ready()) {
-				String[] line = reader.readLine().split(",");
-				maxBedConstraints.add(new MaxBedConstraint(
-						Integer.parseInt(line[2]),
-						Integer.parseInt(line[0]),
-						Integer.parseInt(line[1])));
+				String[] line = reader.readLine().split(",(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)", -1);
+				if (line.length == 4) {					
+					maxBedConstraints.add(new MaxBedConstraint(
+							Integer.parseInt(line[2]),
+							Integer.parseInt(line[0]),
+							Integer.parseInt(line[1]),
+							line[3].replace("\"", "").split(",")));
+				} else {	
+					maxBedConstraints.add(new MaxBedConstraint(
+							Integer.parseInt(line[2]),
+							Integer.parseInt(line[0]),
+							Integer.parseInt(line[1])));
+				}
 			}
 			reader.close();
 
@@ -120,9 +128,12 @@ public class ZipCsvFileIo implements SolutionFileIO<SleepShiftSchedule> {
 		// Process beds
 		int maxBeds = 0;
 		int endTime = 0;
+		String[] maxBedNames = null;
+		
 		for (MaxBedConstraint constraint : maxBedConstraints) {
 			if (constraint.maxBeds > maxBeds) {
 				maxBeds = constraint.maxBeds;
+				maxBedNames = constraint.names;
 			}
 			if (constraint.endTime > endTime) {
 				endTime = constraint.endTime;
@@ -130,7 +141,11 @@ public class ZipCsvFileIo implements SolutionFileIO<SleepShiftSchedule> {
 		}
 
 		for (int i = 0; i < maxBeds; i++) {
-			bedList.add(new Bed(i));
+			if (maxBedNames != null && maxBedNames.length > i) {				
+				bedList.add(new Bed(i, maxBedNames[i]));
+			} else {	
+				bedList.add(new Bed(i));
+			}
 		}
 		
 		
@@ -143,6 +158,7 @@ public class ZipCsvFileIo implements SolutionFileIO<SleepShiftSchedule> {
 		SleepShiftSchedule result = new SleepShiftSchedule(sleepShifts, bedList, userList);
 		result.maxBedConstraints = MaxBedConstraint.processStaticShifts(maxBedConstraints, staticShifts);
 		for (MaxBedConstraint constraint : result.maxBedConstraints) {
+			System.out.println(">=" + constraint.maxBeds + " cannot be used [" + constraint.startTime + ", " + constraint.endTime + "]");
 			for (int i = constraint.maxBeds; i < maxBeds; i++) {
 				result.getBedList().get(i).cannotBeUsedDuring.add(new BedCannotBeUsedRange(constraint.startTime, constraint.endTime));
 			}
@@ -156,7 +172,7 @@ public class ZipCsvFileIo implements SolutionFileIO<SleepShiftSchedule> {
 				}
 			}
 		}
-		result.prettyPrint();
+//		result.prettyPrint();
 		return result;
 	}
 
@@ -169,7 +185,7 @@ public class ZipCsvFileIo implements SolutionFileIO<SleepShiftSchedule> {
 				writer.write(",");
 				writer.write(String.valueOf(u.getSleepShiftStartTime()));
 				writer.write(",");
-				writer.write(String.valueOf(u.getBed().getId()));
+				writer.write(String.valueOf(u.getBed().getName()));
 				writer.newLine();
 			}
 			writer.close();

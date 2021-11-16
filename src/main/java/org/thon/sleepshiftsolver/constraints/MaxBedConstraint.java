@@ -10,11 +10,17 @@ public class MaxBedConstraint {
 	public int maxBeds;
 	public int startTime;
 	public int endTime;
+	public String[] names;
 
 	public MaxBedConstraint(int maxBeds, int startTime, int endTime) {
 		this.maxBeds = maxBeds;
 		this.startTime = startTime;
 		this.endTime = endTime;
+	}
+
+	public MaxBedConstraint(int maxBeds, int startTime, int endTime, String[] names) {
+		this(maxBeds, startTime, endTime);
+		this.names = names;
 	}
 
 	/**
@@ -67,12 +73,14 @@ public class MaxBedConstraint {
 		
 		// Subtract static shift times
 		for (StaticShift shift : staticShifts) {
-			for (int time = shift.startTime; time < shift.startTime + Constants.SHIFT_LENGTH; time++) {
+			System.out.println(shift.startTime);
+			for (int time = Math.max(shift.startTime - Constants.SHIFT_LENGTH + 1, 0); time < shift.startTime + Constants.SHIFT_LENGTH; time++) {
 				if (time < bedsAtTime.size()) {
 					bedsAtTime.get(time).maxBeds--;
 					if (bedsAtTime.get(time).maxBeds < 0) {
 						System.out.println("Too many beds used at time " + time);
-						return null;
+//						return null;
+						bedsAtTime.get(time).maxBeds = 0;
 					}
 				}
 			}

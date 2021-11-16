@@ -110,7 +110,7 @@ public class SleepShiftPanel extends SolutionPanel<SleepShiftSchedule> {
                 createHeaderPanel(new JLabel("Unassigned")));
         for (Bed bed : solution.getBedList()) {
             timeTablePanel.addRowHeader(HEADER_COLUMN, bed,
-                    createHeaderPanel(new JLabel(bed.toString(), SwingConstants.RIGHT)));
+                    createHeaderPanel(new JLabel(bed.getName(), SwingConstants.RIGHT)));
         }
     }
 
