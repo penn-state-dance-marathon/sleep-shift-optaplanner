@@ -40,6 +40,9 @@ public class Bed {
 
     @Override
     public String toString() {
+    	if (name != null) {
+    		return name;
+    	}
         return String.valueOf(id);
     }
 
@@ -57,12 +60,31 @@ public class Bed {
 		return true;
 	}
 	
+	public boolean usedByAnyUser(List<User> userList, int time) {
+		for (User u : userList) {
+			if (u.getBed() != null && u.getBed().id == id &&
+					u.getSleepShift() != null && u.getSleepShiftStartTime() - Constants.SHIFT_LENGTH + 1 <= time && u.getSleepShiftEndTime() >= time) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
 	public String getName() {
 		if (name != null) {			
 			return name;
 		} else {
 			return this.toString();
 		}
+	}
+	
+	public static Bed findFreeBed(List<Bed> bedList, List<User> userList, int time) {
+		for (Bed bed : bedList) {
+			if (!bed.usedByAnyUser(userList, time)) {
+				return bed;
+			}
+		}
+		return null;
 	}
 
 }

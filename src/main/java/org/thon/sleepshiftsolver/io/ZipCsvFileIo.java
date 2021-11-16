@@ -6,6 +6,11 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
+import java.time.temporal.TemporalUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Enumeration;
@@ -152,6 +157,11 @@ public class ZipCsvFileIo implements SolutionFileIO<SleepShiftSchedule> {
 					u.setIsStaticShift(true);
 					
 					// Find free bed for this shift
+					u.setBed(Bed.findFreeBed(bedList, userList, staticShift.startTime));
+					if (u.getBed() == null) {
+						System.out.println("Warning: No free bed found for " + u.getUsername() + " at " + staticShift.startTime);
+					}
+					break;
 				}
 			}
 		}
@@ -181,12 +191,14 @@ public class ZipCsvFileIo implements SolutionFileIO<SleepShiftSchedule> {
 
 	@Override
 	public void write(SleepShiftSchedule solution, File outputSolutionFile) {
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("eee HH:mm");
 		try {
 			BufferedWriter writer = new BufferedWriter(new FileWriter(outputSolutionFile));
 			for (User u : solution.getUserList()) {
+				LocalDateTime shiftStart = Constants.START_TIME.plus(Duration.of(30*u.getSleepShiftStartTime(), ChronoUnit.MINUTES));
 				writer.write(u.getUsername());
 				writer.write(",");
-				writer.write(String.valueOf(u.getSleepShiftStartTime()));
+				writer.write(formatter.format(shiftStart).toUpperCase());
 				writer.write(",");
 				writer.write(String.valueOf(u.getBed().getName()));
 				writer.newLine();

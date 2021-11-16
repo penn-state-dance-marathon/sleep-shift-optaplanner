@@ -17,6 +17,7 @@ repositories {
 dependencies {
     implementation platform ("org.optaplanner:optaplanner-bom:${optaplannerVersion}")
     implementation "org.optaplanner:optaplanner-core"
+    implementation "org.optaplanner:optaplanner-examples"
     runtimeOnly "ch.qos.logback:logback-classic:${logbackVersion}"
 
     testImplementation "org.optaplanner:optaplanner-test"

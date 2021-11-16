@@ -2,9 +2,14 @@ package org.thon.sleepshiftsolver;
 
 import java.util.HashMap;
 import java.awt.Color;
+import java.time.LocalDateTime;
 
 public class Constants {
-
+	
+	// This should only be used to convert an int index into "FRI 12:00" etc
+	// So it *shouldn't* need to change from year to year
+	public static final LocalDateTime START_TIME = LocalDateTime.of(2022, 2, 18, 19, 0);
+	
 	public static final int SHIFT_LENGTH = 8;
 	
 	public static HashMap<String, Color> COLOR_DICT = new HashMap<>();
@@ -42,7 +47,7 @@ public class Constants {
 		COLOR_DICT.put("THON Special Events", Color.decode("#920000"));
 		FONT_DICT.put("THON Special Events", Color.WHITE);
 		COLOR_DICT.put("THON Supply Logistics", Color.decode("#00e600"));
-		FONT_DICT.put("THON Supply Logistics", Color.WHITE);
+		FONT_DICT.put("THON Supply Logistics", Color.BLACK);
 		COLOR_DICT.put("THON Technology", Color.decode("#ccff00"));
 		FONT_DICT.put("THON Technology", Color.BLACK);
 	}
