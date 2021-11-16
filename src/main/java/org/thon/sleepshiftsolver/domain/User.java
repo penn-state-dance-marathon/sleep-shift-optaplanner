@@ -17,6 +17,7 @@
 package org.thon.sleepshiftsolver.domain;
 
 import org.optaplanner.core.api.domain.entity.PlanningEntity;
+import org.optaplanner.core.api.domain.entity.PlanningPin;
 import org.optaplanner.core.api.domain.lookup.PlanningId;
 import org.optaplanner.core.api.domain.variable.PlanningVariable;
 import org.thon.sleepshiftsolver.Constants;
@@ -27,6 +28,9 @@ public class User {
     @PlanningId
     private String id;
 
+	@PlanningPin
+    private boolean isStaticShift;
+    
     private String username;
     public String name;
     public String committee;
@@ -40,9 +44,11 @@ public class User {
 
     // No-arg constructor required for OptaPlanner
     public User() {
+    	this.isStaticShift = false;
     }
 
     public User(String username, int shiftNumber) {
+    	this();
         this.id = username + "-" + shiftNumber;
         this.shiftNumber = shiftNumber;
         this.username = username;
@@ -99,6 +105,10 @@ public class User {
 	
 	public int getSleepShiftEndTime() {
 		return this.sleepShift.getStartTime() + Constants.SHIFT_LENGTH;
+	}
+	
+	public void setIsStaticShift(boolean isStaticShift) {
+		this.isStaticShift = isStaticShift;
 	}
 
 }

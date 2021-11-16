@@ -83,6 +83,22 @@ public class ZipCsvFileIo implements SolutionFileIO<SleepShiftSchedule> {
 			}
 			reader.close();
 
+			// Captains.csv
+			ZipEntry captainsCsv = file.getEntry("captains.csv");
+			reader = new BufferedReader(new InputStreamReader(file.getInputStream(captainsCsv)));
+			while (reader.ready()) {
+				String[] line = reader.readLine().split(",");
+				User shift1 = new User(line[0], 1);
+				shift1.name = line[1];
+				shift1.committee = line[2];
+				User shift2 = new User(line[0], 2);
+				shift2.name = line[1];
+				shift2.committee = line[2];
+				userList.add(shift1);
+				userList.add(shift2);
+			}
+			reader.close();
+
 			// static_shifts.csv
 			ZipEntry staticshiftsCsv = file.getEntry("static_shifts.csv");
 			reader = new BufferedReader(new InputStreamReader(file.getInputStream(staticshiftsCsv)));
@@ -91,32 +107,6 @@ public class ZipCsvFileIo implements SolutionFileIO<SleepShiftSchedule> {
 				staticShifts.add(new StaticShift(
 						line[0],
 						Integer.parseInt(line[1])));
-			}
-			reader.close();
-
-			// Captains.csv
-			ZipEntry captainsCsv = file.getEntry("captains.csv");
-			reader = new BufferedReader(new InputStreamReader(file.getInputStream(captainsCsv)));
-			while (reader.ready()) {
-				String[] line = reader.readLine().split(",");
-				// Only create this if the user does not have a static shift!
-				boolean createUser = true;
-				for (StaticShift staticshift : staticShifts) {
-					if (staticshift.username.equals(line[0])) {
-						createUser = false;
-						break;
-					}
-				}
-				if (createUser) {
-					User shift1 = new User(line[0], 1);
-					shift1.name = line[1];
-					shift1.committee = line[2];
-					User shift2 = new User(line[0], 2);
-					shift2.name = line[1];
-					shift2.committee = line[2];
-					userList.add(shift1);
-					userList.add(shift2);
-				}				
 			}
 			reader.close();
 			file.close();
@@ -154,9 +144,22 @@ public class ZipCsvFileIo implements SolutionFileIO<SleepShiftSchedule> {
 			sleepShifts.add(new SleepShift(i));
 		}
 		
+		// Static Shifts
+		for (StaticShift staticShift : staticShifts) {
+			for (User u : userList) {
+				if (u.getUsername().equals(staticShift.username) && u.getSleepShift() == null) {
+					u.setSleepShift(sleepShifts.get(staticShift.startTime));
+					u.setIsStaticShift(true);
+					
+					// Find free bed for this shift
+				}
+			}
+		}
+		
 		
 		SleepShiftSchedule result = new SleepShiftSchedule(sleepShifts, bedList, userList);
-		result.maxBedConstraints = MaxBedConstraint.processStaticShifts(maxBedConstraints, staticShifts);
+//		result.maxBedConstraints = MaxBedConstraint.processStaticShifts(maxBedConstraints, staticShifts);
+		result.maxBedConstraints = MaxBedConstraint.clean(maxBedConstraints);
 		for (MaxBedConstraint constraint : result.maxBedConstraints) {
 			System.out.println(">=" + constraint.maxBeds + " cannot be used [" + constraint.startTime + ", " + constraint.endTime + "]");
 			for (int i = constraint.maxBeds; i < maxBeds; i++) {
