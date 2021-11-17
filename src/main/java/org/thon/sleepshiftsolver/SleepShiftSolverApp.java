@@ -3,16 +3,13 @@ package org.thon.sleepshiftsolver;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.ImageIcon;
+import javax.swing.JFileChooser;
 
-import org.optaplanner.examples.common.app.CommonApp;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.thon.sleepshiftsolver.ui.SleepShiftCommonApp;
 
-import javax.swing.JButton;
-import java.awt.BorderLayout;
-import java.awt.event.ActionListener;
-import java.awt.event.ActionEvent;
+import java.io.File;
 import java.awt.Color;
 import javax.swing.SwingConstants;
 
@@ -46,7 +43,22 @@ public class SleepShiftSolverApp extends JFrame {
         app.setLocationRelativeTo(null);
         app.setVisible(true);
         
-        SleepShiftCommonApp.main(args);
-        app.setVisible(false);
+        // Choose data directory
+        JFileChooser chooser = new JFileChooser();
+        chooser.setCurrentDirectory(new File("."));
+        chooser.setDialogTitle("Choose a directory for storing sleep shift data");
+        chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+        chooser.setAcceptAllFileFilterUsed(false);
+        if (chooser.showOpenDialog(app) == JFileChooser.APPROVE_OPTION) { 
+            System.setProperty("org.optaplanner.examples.dataDir", chooser.getSelectedFile().getAbsolutePath());
+            new File(chooser.getSelectedFile(), "sleepshiftsolver").mkdir();
+            new File(chooser.getSelectedFile(), "sleepshiftsolver/unsolved").mkdir();
+            new File(chooser.getSelectedFile(), "sleepshiftsolver/solved").mkdir();
+            new File(chooser.getSelectedFile(), "sleepshiftsolver/import").mkdir();
+            SleepShiftCommonApp.main(args);
+            app.setVisible(false);
+	    }
+//        LOGGER.info(String.join(", ", dataDir.list()));
+
     }
 }
