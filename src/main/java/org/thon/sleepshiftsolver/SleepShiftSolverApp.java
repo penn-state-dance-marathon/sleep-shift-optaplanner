@@ -35,6 +35,8 @@ public class SleepShiftSolverApp extends JFrame {
     private static final Logger LOGGER = LoggerFactory.getLogger(SleepShiftSolverApp.class);
 
     public static void main(String[] args) {
+        // https://stackoverflow.com/questions/50237516/proper-fix-for-java-10-complaining-about-illegal-reflection-access-by-jaxb-impl
+    	System.setProperty("com.sun.xml.bind.v2.bytecode.ClassTailor.noOptimize", "true");
 //        CommonApp.prepareSwingEnvironment();
         SleepShiftSolverApp app = new SleepShiftSolverApp();
 //        app.pack();
