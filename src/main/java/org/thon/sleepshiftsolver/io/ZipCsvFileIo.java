@@ -109,9 +109,15 @@ public class ZipCsvFileIo implements SolutionFileIO<SleepShiftSchedule> {
 			reader = new BufferedReader(new InputStreamReader(file.getInputStream(staticshiftsCsv)));
 			while (reader.ready()) {
 				String[] line = reader.readLine().split(",");
-				staticShifts.add(new StaticShift(
-						line[0],
-						Integer.parseInt(line[1])));
+				if (line.length == 3 && line[2].length() > 0) {
+					staticShifts.add(new StaticShift(
+							line[0],
+							Integer.parseInt(line[1]), line[2]));
+				} else {					
+					staticShifts.add(new StaticShift(
+							line[0],
+							Integer.parseInt(line[1])));
+				}
 			}
 			reader.close();
 			file.close();
@@ -146,7 +152,13 @@ public class ZipCsvFileIo implements SolutionFileIO<SleepShiftSchedule> {
 		
 		// Sleep shifts
 		for (int i = 0; i <= endTime; i++) {
-			sleepShifts.add(new SleepShift(i));
+			SleepShift newShift = new SleepShift(i);
+			// Can't start sleeping at the last 7 segments
+			if (endTime - i < Constants.SHIFT_LENGTH - 1) {
+				System.out.println("Can't sleep at " + newShift.toDateTimeString());
+				newShift.canStartSleepingAtThisShift = false;
+			}
+			sleepShifts.add(newShift);
 		}
 		
 		// Static Shifts
@@ -156,10 +168,19 @@ public class ZipCsvFileIo implements SolutionFileIO<SleepShiftSchedule> {
 					u.setSleepShift(sleepShifts.get(staticShift.startTime));
 					u.setIsStaticShift(true);
 					
-					// Find free bed for this shift
-					u.setBed(Bed.findFreeBed(bedList, userList, staticShift.startTime));
-					if (u.getBed() == null) {
-						System.out.println("Warning: No free bed found for " + u.getUsername() + " at " + staticShift.startTime);
+					if (staticShift.bed != null) {
+						for (Bed bed : bedList) {
+							if (bed.getName().equals(staticShift.bed)) {
+								u.setBed(bed);
+								break;
+							}
+						}
+					} else {						
+						// Find free bed for this shift
+						u.setBed(Bed.findFreeBed(bedList, userList, staticShift.startTime));
+						if (u.getBed() == null) {
+							System.out.println("Warning: No free bed found for " + u.getUsername() + " at " + staticShift.startTime);
+						}
 					}
 					break;
 				}

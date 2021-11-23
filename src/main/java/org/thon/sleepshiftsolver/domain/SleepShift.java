@@ -1,10 +1,15 @@
 
 package org.thon.sleepshiftsolver.domain;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.optaplanner.core.api.domain.lookup.PlanningId;
+import org.thon.sleepshiftsolver.Constants;
 import org.thon.sleepshiftsolver.constraints.MaxSleepingList;
 
 public class SleepShift {
@@ -12,6 +17,8 @@ public class SleepShift {
     private int startTime;
     public List<MaxSleepingList> sleepingDuringThisTime = new ArrayList<>();
 
+    public boolean canStartSleepingAtThisShift = true;
+    
     public SleepShift(int startTime) {
         this.startTime = startTime;
     }
@@ -24,6 +31,12 @@ public class SleepShift {
 	@PlanningId
     public int getStartTime() {
         return startTime;
+	}
+	
+	public String toDateTimeString() {
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("eee HH:mm");
+		LocalDateTime shiftStart = Constants.START_TIME.plus(Duration.of(30*startTime, ChronoUnit.MINUTES));
+		return formatter.format(shiftStart).toUpperCase();
 	}
 	
 	public boolean bothUsersInMaxSleepingList(User user1, User user2) {

@@ -98,7 +98,7 @@ public class SleepShiftPanel extends SolutionPanel<SleepShiftSchedule> {
     	int maxTime = 0;
         for (SleepShift shift : solution.getSleepshiftList()) {
             timeTablePanel.addColumnHeader(shift, HEADER_ROW,
-                    createHeaderPanel(new JLabel(shift.toString(), SwingConstants.CENTER)));
+                    createHeaderPanel(new JLabel(shift.toDateTimeString(), SwingConstants.CENTER)));
             if (shift.getStartTime() > maxTime) {
             	maxTime = shift.getStartTime();
             }
@@ -133,7 +133,7 @@ public class SleepShiftPanel extends SolutionPanel<SleepShiftSchedule> {
         private final User user;
 
         public UserAction(User user) {
-            super(user.name);
+            super(user.name + " (" + user.getUsername() + ")");
             this.user = user;
             putValue(SHORT_DESCRIPTION, "<html>User: " + user.getId() + "<br/>"
                     + "Bed: " + user.getBed() + "<br/>"

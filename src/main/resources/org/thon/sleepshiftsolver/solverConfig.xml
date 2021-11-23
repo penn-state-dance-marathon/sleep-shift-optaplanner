@@ -12,7 +12,7 @@
   </scoreDirectorFactory>
 
   <termination>
-    <minutesSpentLimit>180</minutesSpentLimit>
+    <minutesSpentLimit>1800</minutesSpentLimit>
     <bestScoreLimit>0hard/0medium/-50soft</bestScoreLimit>
     <scoreCalculationCountLimit>100000</scoreCalculationCountLimit>
   </termination>

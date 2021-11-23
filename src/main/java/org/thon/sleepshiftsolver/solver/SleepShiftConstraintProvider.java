@@ -42,6 +42,7 @@ public class SleepShiftConstraintProvider implements ConstraintProvider {
     	constraints.add(maxBedConflictInternal(constraintFactory));
     	constraints.add(maxSleepingConflictInternal(constraintFactory));
     	constraints.add(shiftSeparationHardConstraint(constraintFactory));
+    	constraints.add(mustHaveBedForWholeShift(constraintFactory));
     	
     	// Soft constraints
     	constraints.add(shiftSeparationSoftConstraint(constraintFactory));
@@ -97,12 +98,12 @@ public class SleepShiftConstraintProvider implements ConstraintProvider {
     }
     
     /**
-     * The 2 shifts for a single captain must be at least 12 hours apart.
+     * The 2 shifts for a single captain must be at least 14 hours apart.
      * @param constraintFactory
      * @return
      */
     Constraint shiftSeparationHardConstraint(ConstraintFactory constraintFactory) {
-    	int minDistance = 2 * 12; // 12 hours
+    	int minDistance = 2 * 14; // 14 hours
     	return constraintFactory.from(User.class)
     			.join(User.class,
 					Joiners.equal(User::getUsername)
@@ -130,6 +131,13 @@ public class SleepShiftConstraintProvider implements ConstraintProvider {
 							user1.getSleepShiftStartTime() >= user2.getSleepShiftStartTime() + minDistance
 						))
     			.penalize("20 hour between shifts preferred", HardMediumSoftScore.ONE_SOFT);
+    }
+    
+    // Can't start sleeping the last 6 segments
+    Constraint mustHaveBedForWholeShift(ConstraintFactory constraintFactory) {
+    	return constraintFactory.from(User.class)
+    			.filter(user -> !user.getSleepShift().canStartSleepingAtThisShift)
+    			.penalize("Must have a bed for the whole shift (can't start sleeping in the last 3.5 hours)", HardMediumSoftScore.ONE_HARD);
     }
     
 //    Constraint preferOvernight(ConstraintFactory constraintFactory) {
