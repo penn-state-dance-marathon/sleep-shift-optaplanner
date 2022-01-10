@@ -98,12 +98,12 @@ public class SleepShiftConstraintProvider implements ConstraintProvider {
     }
     
     /**
-     * The 2 shifts for a single captain must be at least 14 hours apart.
+     * The 2 shifts for a single captain must be at least 16 (previously 14) hours apart.
      * @param constraintFactory
      * @return
      */
     Constraint shiftSeparationHardConstraint(ConstraintFactory constraintFactory) {
-    	int minDistance = 2 * 14; // 14 hours
+    	int minDistance = 2 * 16; // 16 hours
     	return constraintFactory.from(User.class)
     			.join(User.class,
 					Joiners.equal(User::getUsername)
