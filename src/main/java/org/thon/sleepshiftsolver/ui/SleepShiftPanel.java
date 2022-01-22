@@ -5,6 +5,7 @@ import static org.optaplanner.examples.common.swingui.timetable.TimeTablePanel.H
 import static org.optaplanner.examples.common.swingui.timetable.TimeTablePanel.HeaderRowKey.HEADER_ROW;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.event.ActionEvent;
 import java.io.File;
@@ -27,6 +28,7 @@ import org.optaplanner.examples.common.swingui.timetable.TimeTablePanel;
 import org.optaplanner.swing.impl.SwingUtils;
 import org.optaplanner.swing.impl.TangoColorFactory;
 import org.thon.sleepshiftsolver.Constants;
+import org.thon.sleepshiftsolver.constraints.BedCannotBeUsedRange;
 import org.thon.sleepshiftsolver.domain.Bed;
 import org.thon.sleepshiftsolver.domain.SleepShift;
 import org.thon.sleepshiftsolver.domain.SleepShiftSchedule;
@@ -124,6 +126,17 @@ public class SleepShiftPanel extends SolutionPanel<SleepShiftSchedule> {
         		timeTablePanel.addCell(user.getSleepShift(), user.getBed(),
         				solution.getLastSleepShiftFrom(user.getSleepShift()), user.getBed(), button);
         	}
+        }
+
+        // Add blocks when beds cannot be used
+        for (Bed bed : solution.getBedList()) {
+            for (BedCannotBeUsedRange invalidRange : bed.cannotBeUsedDuring) {
+        		JButton button = SwingUtils.makeSmallButton(new JButton("UNAVAILABLE"));
+        		button.setBackground(Color.DARK_GRAY);
+        		button.setForeground(Color.WHITE);
+        		timeTablePanel.addCell(solution.getSleepShiftAt(invalidRange.startTime), bed,
+                    solution.getSleepShiftAt(invalidRange.endTime), bed, button);
+            }
         }
     }
     

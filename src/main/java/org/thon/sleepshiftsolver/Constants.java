@@ -2,7 +2,10 @@ package org.thon.sleepshiftsolver;
 
 import java.util.HashMap;
 import java.awt.Color;
+import java.time.Duration;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 
 public class Constants {
 	
@@ -50,5 +53,11 @@ public class Constants {
 		FONT_DICT.put("THON Supply Logistics", Color.BLACK);
 		COLOR_DICT.put("THON Technology", Color.decode("#ccff00"));
 		FONT_DICT.put("THON Technology", Color.BLACK);
+	}
+
+	public static String convertTimeToPrettyPrint(int time) {
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("eee HH:mm");
+		LocalDateTime shiftStart = Constants.START_TIME.plus(Duration.of(30*time, ChronoUnit.MINUTES));
+		return formatter.format(shiftStart).toUpperCase();
 	}
 }

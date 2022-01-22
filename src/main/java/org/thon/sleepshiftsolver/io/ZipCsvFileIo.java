@@ -178,10 +178,22 @@ public class ZipCsvFileIo implements SolutionFileIO<SleepShiftSchedule> {
 				return 0; //o1.startTime - o2.startTime;
 			}
 		});
+
+		SleepShiftSchedule result = new SleepShiftSchedule(sleepShifts, bedList, userList);
+//		result.maxBedConstraints = MaxBedConstraint.processStaticShifts(maxBedConstraints, staticShifts);
+		result.maxBedConstraints = MaxBedConstraint.clean(maxBedConstraints);
+		for (MaxBedConstraint constraint : result.maxBedConstraints) {
+			System.out.println(">=" + constraint.maxBeds + " cannot be used [" + constraint.startTime + ", " + constraint.endTime + "]");
+			for (int i = constraint.maxBeds; i < maxBeds; i++) {
+				result.getBedList().get(i).cannotBeUsedDuring.add(new BedCannotBeUsedRange(constraint.startTime, constraint.endTime));
+			}
+		}
+
 		for (StaticShift staticShift : staticShifts) {
+			boolean staticShiftFound = false;
 			for (User u : userList) {
 				if (u.getUsername().equals(staticShift.username) && u.getSleepShift() == null) {
-					System.out.println("Loading static shift for " + u.name);
+					// System.out.println("Loading static shift for " + u.name);
 					u.setSleepShift(sleepShifts.get(staticShift.startTime));
 					u.setIsStaticShift(true);
 					
@@ -192,28 +204,24 @@ public class ZipCsvFileIo implements SolutionFileIO<SleepShiftSchedule> {
 								break;
 							}
 						}
-					} else {						
+					} 
+					else {						
 						// Find free bed for this shift
 						u.setBed(Bed.findFreeBed(bedList, userList, staticShift.startTime));
 						if (u.getBed() == null) {
-							System.out.println("Warning: No free bed found for " + u.getUsername() + " at " + staticShift.startTime);
+							System.out.println("Warning: No free bed found for " + u.getUsername() + " at " + staticShift.startTime + " (" + Constants.convertTimeToPrettyPrint(staticShift.startTime) + ")");
 						}
 					}
+					staticShiftFound = true;
 					break;
 				}
 			}
-		}
-		
-		
-		SleepShiftSchedule result = new SleepShiftSchedule(sleepShifts, bedList, userList);
-//		result.maxBedConstraints = MaxBedConstraint.processStaticShifts(maxBedConstraints, staticShifts);
-		result.maxBedConstraints = MaxBedConstraint.clean(maxBedConstraints);
-		for (MaxBedConstraint constraint : result.maxBedConstraints) {
-			System.out.println(">=" + constraint.maxBeds + " cannot be used [" + constraint.startTime + ", " + constraint.endTime + "]");
-			for (int i = constraint.maxBeds; i < maxBeds; i++) {
-				result.getBedList().get(i).cannotBeUsedDuring.add(new BedCannotBeUsedRange(constraint.startTime, constraint.endTime));
+			if (!staticShiftFound) {
+				System.out.println("Could not find user for shift " + staticShift.username);
+				// throw new IOException("Could not find user for shift " + staticShift.username);
 			}
 		}
+		
 		for (MaxSleepingConstraint constraint : maxSleepingConstraints) {
 			for (int i = Math.max(constraint.startTime - Constants.SHIFT_LENGTH + 1, 0); i <= constraint.endTime; i++) {
 				SleepShift shiftAtTime = result.getSleepShiftAt(i);
@@ -233,13 +241,15 @@ public class ZipCsvFileIo implements SolutionFileIO<SleepShiftSchedule> {
 		try {
 			BufferedWriter writer = new BufferedWriter(new FileWriter(outputSolutionFile));
 			for (User u : solution.getUserList()) {
-				LocalDateTime shiftStart = Constants.START_TIME.plus(Duration.of(30*u.getSleepShiftStartTime(), ChronoUnit.MINUTES));
-				writer.write(u.getUsername());
-				writer.write(",");
-				writer.write(formatter.format(shiftStart).toUpperCase());
-				writer.write(",");
-				writer.write(String.valueOf(u.getBed().getName()));
-				writer.newLine();
+				if (u.getSleepShift() != null && u.getBed() != null) {
+					LocalDateTime shiftStart = Constants.START_TIME.plus(Duration.of(30*u.getSleepShiftStartTime(), ChronoUnit.MINUTES));
+					writer.write(u.getUsername());
+					writer.write(",");
+					writer.write(formatter.format(shiftStart).toUpperCase());
+					writer.write(",");
+					writer.write(String.valueOf(u.getBed().getName()));
+					writer.newLine();
+				}
 			}
 			writer.close();
 		} catch (IOException e) {

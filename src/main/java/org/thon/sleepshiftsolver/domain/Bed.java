@@ -17,6 +17,8 @@
 package org.thon.sleepshiftsolver.domain;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import org.optaplanner.core.api.domain.lookup.PlanningId;
@@ -63,7 +65,7 @@ public class Bed {
 	public boolean usedByAnyUser(List<User> userList, int time) {
 		for (User u : userList) {
 			if (u.getBed() != null && u.getBed().id == id &&
-					u.getSleepShift() != null && u.getSleepShiftStartTime() - Constants.SHIFT_LENGTH + 1 <= time && u.getSleepShiftEndTime() >= time) {
+					u.getSleepShift() != null && u.getSleepShiftStartTime() - Constants.SHIFT_LENGTH + 1 <= time && u.getSleepShiftEndTime() > time) {
 				return true;
 			}
 		}
@@ -79,8 +81,21 @@ public class Bed {
 	}
 	
 	public static Bed findFreeBed(List<Bed> bedList, List<User> userList, int time) {
-		for (Bed bed : bedList) {
-			if (!bed.usedByAnyUser(userList, time)) {
+		List<Bed> bedListSorted = new ArrayList<>(bedList);
+		// Prefer beds with more constraints!
+		// bedListSorted.sort(new Comparator<Bed>() {
+		// 	@Override
+		// 	public int compare(Bed o1, Bed o2) {
+		// 		if (o1.cannotBeUsedDuring.size() != o2.cannotBeUsedDuring.size()){
+		// 			System.out.println(o1.toString() + o2.toString());
+		// 		}
+		// 		return o2.cannotBeUsedDuring.size() - o1.cannotBeUsedDuring.size();
+		// 	}
+		// });
+		// Hack - reverse
+		Collections.reverse(bedListSorted);
+		for (Bed bed : bedListSorted) {
+			if (!bed.usedByAnyUser(userList, time) && bed.canBeUsedAt(time)) {
 				return bed;
 			}
 		}
