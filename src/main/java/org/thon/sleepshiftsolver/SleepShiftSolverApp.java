@@ -46,20 +46,28 @@ public class SleepShiftSolverApp extends JFrame {
         app.setVisible(true);
         
         // Choose data directory
-        JFileChooser chooser = new JFileChooser();
-        chooser.setCurrentDirectory(new File("."));
-        chooser.setDialogTitle("Choose a directory for storing sleep shift data");
-        chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-        chooser.setAcceptAllFileFilterUsed(false);
-        if (chooser.showOpenDialog(app) == JFileChooser.APPROVE_OPTION) { 
-            System.setProperty("org.optaplanner.examples.dataDir", chooser.getSelectedFile().getAbsolutePath());
-            new File(chooser.getSelectedFile(), "sleepshiftsolver").mkdir();
-            new File(chooser.getSelectedFile(), "sleepshiftsolver/unsolved").mkdir();
-            new File(chooser.getSelectedFile(), "sleepshiftsolver/solved").mkdir();
-            new File(chooser.getSelectedFile(), "sleepshiftsolver/import").mkdir();
-            SleepShiftCommonApp.main(args);
-            app.setVisible(false);
-	    }
+        File inDirectory = null;
+        if (args.length > 0) {
+            inDirectory = new File(args[0]);
+        } else {
+            JFileChooser chooser = new JFileChooser();
+            chooser.setCurrentDirectory(new File("."));
+            chooser.setDialogTitle("Choose a directory for storing sleep shift data");
+            chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+            chooser.setAcceptAllFileFilterUsed(false);
+            if (chooser.showOpenDialog(app) == JFileChooser.APPROVE_OPTION) {
+                inDirectory = chooser.getSelectedFile();
+            } else {
+                return;
+            }
+        }
+        System.setProperty("org.optaplanner.examples.dataDir", inDirectory.getAbsolutePath());
+        new File(inDirectory, "sleepshiftsolver").mkdir();
+        new File(inDirectory, "sleepshiftsolver/unsolved").mkdir();
+        new File(inDirectory, "sleepshiftsolver/solved").mkdir();
+        new File(inDirectory, "sleepshiftsolver/import").mkdir();
+        SleepShiftCommonApp.main(args);
+        app.setVisible(false);
 //        LOGGER.info(String.join(", ", dataDir.list()));
 
     }

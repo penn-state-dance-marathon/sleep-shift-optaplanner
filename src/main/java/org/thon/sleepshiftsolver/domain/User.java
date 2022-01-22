@@ -111,4 +111,27 @@ public class User {
 		this.isStaticShift = isStaticShift;
 	}
 
+    public boolean isSleepShiftBetween8am8pm() {
+        // Intentionally expanded
+        // if (this.getSleepShiftStartTime() < 3) {
+        //     // before FRI 8pm
+        //     return false;
+        // }
+        // if (this.getSleepShiftStartTime() < 26) {
+        //     // Between FRI 8pm and SAT 8am
+        //     return true;
+        // }
+        // if (this.getSleepShiftStartTime() < 50) {
+        //     // Between SAT 8am and SAT 8pm
+        //     return false;
+        // }
+        // if (this.getSleepShiftStartTime() < 74) {
+        //     return true;
+        // }
+        // return false;
+        int start = this.getSleepShiftStartTime();
+        int end = this.getSleepShiftEndTime();
+        return (start >= 3 && end < 26) || (start >= 50 && end < 74); 
+    }
+
 }

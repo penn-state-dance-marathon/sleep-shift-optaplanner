@@ -39,7 +39,11 @@ public class SleepShiftConstraintProvider implements ConstraintProvider {
     	ArrayList<Constraint> constraints = new ArrayList<>();
     	// Hard Constraints
     	constraints.add(bedConflict(constraintFactory));
-    	constraints.add(maxBedConflictInternal(constraintFactory));
+
+    	// constraints.add(maxBedConflictInternal(constraintFactory));
+    	constraints.add(beaverStadium8am8pm(constraintFactory));
+
+
     	constraints.add(maxSleepingConflictInternal(constraintFactory));
     	constraints.add(shiftSeparationHardConstraint(constraintFactory));
     	constraints.add(mustHaveBedForWholeShift(constraintFactory));
@@ -95,6 +99,12 @@ public class SleepShiftConstraintProvider implements ConstraintProvider {
     	return constraintFactory.from(User.class)
     			.filter((user) -> !user.getBed().canBeUsedAt(user.getSleepShiftStartTime()))
     			.penalize("Max beds used", HardMediumSoftScore.ONE_HARD);
+    }
+
+	Constraint beaverStadium8am8pm(ConstraintFactory constraintFactory) {
+    	return constraintFactory.from(User.class)
+    			.filter((user) -> !user.isSleepShiftBetween8am8pm())
+    			.penalize("Beaver stadium", HardMediumSoftScore.ONE_HARD);
     }
     
     /**
