@@ -16,6 +16,8 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Enumeration;
 import java.util.List;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
@@ -41,6 +43,18 @@ public class ZipCsvFileIo implements SolutionFileIO<SleepShiftSchedule> {
 	@Override
 	public String getOutputFileExtension() {
 		return "csv";
+	}
+
+	// Used for beaver stadium
+	public void assignUserToNextShiftChunk(User u, List<SleepShift> chunks, List<Bed> beds, List<User> allUsers) {
+		for (SleepShift shift : chunks) {
+			Bed bed = Bed.findFreeBed(beds, allUsers, shift.getStartTime());
+			if (bed != null) {
+				u.setBed(bed);
+				u.setSleepShift(shift);
+				return;
+			}
+		}
 	}
 
 	@Override
@@ -189,6 +203,7 @@ public class ZipCsvFileIo implements SolutionFileIO<SleepShiftSchedule> {
 			}
 		}
 
+		List<User> usersWithoutAStaticShift = new ArrayList<User>(userList);
 		for (StaticShift staticShift : staticShifts) {
 			boolean staticShiftFound = false;
 			for (User u : userList) {
@@ -213,6 +228,7 @@ public class ZipCsvFileIo implements SolutionFileIO<SleepShiftSchedule> {
 						}
 					}
 					staticShiftFound = true;
+					usersWithoutAStaticShift.remove(u);
 					break;
 				}
 			}
@@ -232,6 +248,29 @@ public class ZipCsvFileIo implements SolutionFileIO<SleepShiftSchedule> {
 			}
 		}
 //		result.prettyPrint();
+
+		// Beaver stadium - night one
+		List<SleepShift> chunks = new ArrayList<SleepShift>();
+		chunks.add(result.getSleepShiftAt(2));
+		chunks.add(result.getSleepShiftAt(10));
+		chunks.add(result.getSleepShiftAt(18));
+
+		Predicate<User> isFirstShift = user -> user.getShiftNumber() == 1;
+		Predicate<User> isSecondShift = user -> user.getShiftNumber() == 2;
+
+		for (User u : usersWithoutAStaticShift.stream().filter(isFirstShift).collect(Collectors.toList())) {
+			assignUserToNextShiftChunk(u, chunks, bedList, userList);
+		}
+		
+		chunks = new ArrayList<SleepShift>();
+		chunks.add(result.getSleepShiftAt(50));
+		chunks.add(result.getSleepShiftAt(58));
+		chunks.add(result.getSleepShiftAt(66));
+
+		for (User u : usersWithoutAStaticShift.stream().filter(isSecondShift).collect(Collectors.toList())) {
+			assignUserToNextShiftChunk(u, chunks, bedList, userList);
+		}
+
 		return result;
 	}
 

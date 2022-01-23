@@ -131,7 +131,7 @@ public class User {
         // return false;
         int start = this.getSleepShiftStartTime();
         int end = this.getSleepShiftEndTime();
-        return (start >= 3 && end < 26) || (start >= 50 && end < 74); 
+        return (start >= 2 && end <= 26) || (start >= 50 && end <= 74); 
     }
 
 }
