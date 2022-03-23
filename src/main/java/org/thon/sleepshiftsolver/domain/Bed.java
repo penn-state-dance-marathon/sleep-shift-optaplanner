@@ -92,8 +92,13 @@ public class Bed {
 		// 		return o2.cannotBeUsedDuring.size() - o1.cannotBeUsedDuring.size();
 		// 	}
 		// });
+
+		// NOTE
 		// Hack - reverse
-		Collections.reverse(bedListSorted);
+		// Enable this if you have problems with the family lounge and need to put off-schedule shifts there.
+		// Hopefully this was only needed in 2022.
+		// Collections.reverse(bedListSorted);
+
 		for (Bed bed : bedListSorted) {
 			if (!bed.usedByAnyUser(userList, time) && bed.canBeUsedAt(time)) {
 				return bed;

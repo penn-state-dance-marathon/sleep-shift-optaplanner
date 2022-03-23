@@ -58,6 +58,8 @@ public class SleepShiftSolverApp extends JFrame {
             if (chooser.showOpenDialog(app) == JFileChooser.APPROVE_OPTION) {
                 inDirectory = chooser.getSelectedFile();
             } else {
+                app.setVisible(false);
+                app.dispose();
                 return;
             }
         }

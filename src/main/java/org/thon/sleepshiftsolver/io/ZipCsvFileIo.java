@@ -250,26 +250,26 @@ public class ZipCsvFileIo implements SolutionFileIO<SleepShiftSchedule> {
 //		result.prettyPrint();
 
 		// Beaver stadium - night one
-		List<SleepShift> chunks = new ArrayList<SleepShift>();
-		chunks.add(result.getSleepShiftAt(2));
-		chunks.add(result.getSleepShiftAt(10));
-		chunks.add(result.getSleepShiftAt(18));
+		// List<SleepShift> chunks = new ArrayList<SleepShift>();
+		// chunks.add(result.getSleepShiftAt(2));
+		// chunks.add(result.getSleepShiftAt(10));
+		// chunks.add(result.getSleepShiftAt(18));
 
-		Predicate<User> isFirstShift = user -> user.getShiftNumber() == 1;
-		Predicate<User> isSecondShift = user -> user.getShiftNumber() == 2;
+		// Predicate<User> isFirstShift = user -> user.getShiftNumber() == 1;
+		// Predicate<User> isSecondShift = user -> user.getShiftNumber() == 2;
 
-		for (User u : usersWithoutAStaticShift.stream().filter(isFirstShift).collect(Collectors.toList())) {
-			assignUserToNextShiftChunk(u, chunks, bedList, userList);
-		}
+		// for (User u : usersWithoutAStaticShift.stream().filter(isFirstShift).collect(Collectors.toList())) {
+		// 	assignUserToNextShiftChunk(u, chunks, bedList, userList);
+		// }
 		
-		chunks = new ArrayList<SleepShift>();
-		chunks.add(result.getSleepShiftAt(50));
-		chunks.add(result.getSleepShiftAt(58));
-		chunks.add(result.getSleepShiftAt(66));
+		// chunks = new ArrayList<SleepShift>();
+		// chunks.add(result.getSleepShiftAt(50));
+		// chunks.add(result.getSleepShiftAt(58));
+		// chunks.add(result.getSleepShiftAt(66));
 
-		for (User u : usersWithoutAStaticShift.stream().filter(isSecondShift).collect(Collectors.toList())) {
-			assignUserToNextShiftChunk(u, chunks, bedList, userList);
-		}
+		// for (User u : usersWithoutAStaticShift.stream().filter(isSecondShift).collect(Collectors.toList())) {
+		// 	assignUserToNextShiftChunk(u, chunks, bedList, userList);
+		// }
 
 		return result;
 	}

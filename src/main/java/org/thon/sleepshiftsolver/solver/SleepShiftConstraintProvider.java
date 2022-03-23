@@ -40,8 +40,10 @@ public class SleepShiftConstraintProvider implements ConstraintProvider {
     	// Hard Constraints
     	constraints.add(bedConflict(constraintFactory));
 
-    	// constraints.add(maxBedConflictInternal(constraintFactory));
-    	constraints.add(beaverStadium8am8pm(constraintFactory));
+		// In 2022, it was way faster to implement a "only 8am to 8pm" beaver stadium constraint.
+		// Otherwise, use the generalized max bed conflict.
+    	constraints.add(maxBedConflictInternal(constraintFactory));
+    	// constraints.add(beaverStadium8am8pm(constraintFactory));
 
 
     	constraints.add(maxSleepingConflictInternal(constraintFactory));
