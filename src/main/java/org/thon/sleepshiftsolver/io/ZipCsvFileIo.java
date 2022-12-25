@@ -21,6 +21,8 @@ import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
+import javax.swing.JOptionPane;
+
 import org.optaplanner.persistence.common.api.domain.solution.SolutionFileIO;
 import org.thon.sleepshiftsolver.Constants;
 import org.thon.sleepshiftsolver.constraints.BedCannotBeUsedRange;
@@ -224,6 +226,11 @@ public class ZipCsvFileIo implements SolutionFileIO<SleepShiftSchedule> {
 						// Find free bed for this shift
 						u.setBed(Bed.findFreeBed(bedList, userList, staticShift.startTime));
 						if (u.getBed() == null) {
+							JOptionPane.showMessageDialog(
+								null, 
+								"Invalid static shift. No free bed found for " + u.getUsername() + " at " + staticShift.startTime + " (" + Constants.convertTimeToPrettyPrint(staticShift.startTime) + ")",
+								"This solution will probably fail!",
+								JOptionPane.ERROR_MESSAGE);
 							System.out.println("Warning: No free bed found for " + u.getUsername() + " at " + staticShift.startTime + " (" + Constants.convertTimeToPrettyPrint(staticShift.startTime) + ")");
 						}
 					}
