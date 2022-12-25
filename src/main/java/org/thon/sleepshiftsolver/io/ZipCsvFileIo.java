@@ -21,6 +21,8 @@ import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
+import javax.swing.JOptionPane;
+
 import org.optaplanner.persistence.common.api.domain.solution.SolutionFileIO;
 import org.thon.sleepshiftsolver.Constants;
 import org.thon.sleepshiftsolver.constraints.BedCannotBeUsedRange;
@@ -35,6 +37,8 @@ import org.thon.sleepshiftsolver.domain.User;
 
 public class ZipCsvFileIo implements SolutionFileIO<SleepShiftSchedule> {
 
+	private static final boolean USE_TIME_BASED_BED_ASSIGNMENT_FOR_STATIC_SHIFTS = true;
+	
 	@Override
 	public String getInputFileExtension() {
 		return "zip";
@@ -220,10 +224,16 @@ public class ZipCsvFileIo implements SolutionFileIO<SleepShiftSchedule> {
 							}
 						}
 					} 
-					else {						
+					else if (!USE_TIME_BASED_BED_ASSIGNMENT_FOR_STATIC_SHIFTS) {
 						// Find free bed for this shift
+						// Use a naive first-bed-available algorithm
 						u.setBed(Bed.findFreeBed(bedList, userList, staticShift.startTime));
 						if (u.getBed() == null) {
+							JOptionPane.showMessageDialog(
+								null, 
+								"Invalid static shift. No free bed found for " + u.getUsername() + " at " + staticShift.startTime + " (" + Constants.convertTimeToPrettyPrint(staticShift.startTime) + ")",
+								"This solution will probably fail!",
+								JOptionPane.ERROR_MESSAGE);
 							System.out.println("Warning: No free bed found for " + u.getUsername() + " at " + staticShift.startTime + " (" + Constants.convertTimeToPrettyPrint(staticShift.startTime) + ")");
 						}
 					}
@@ -236,6 +246,10 @@ public class ZipCsvFileIo implements SolutionFileIO<SleepShiftSchedule> {
 				System.out.println("Could not find user for shift " + staticShift.username);
 				// throw new IOException("Could not find user for shift " + staticShift.username);
 			}
+		}
+
+		if (USE_TIME_BASED_BED_ASSIGNMENT_FOR_STATIC_SHIFTS) {
+			SleepShift.assignBedsBasedOnTimeslots(bedList, userList, sleepShifts);
 		}
 		
 		for (MaxSleepingConstraint constraint : maxSleepingConstraints) {
