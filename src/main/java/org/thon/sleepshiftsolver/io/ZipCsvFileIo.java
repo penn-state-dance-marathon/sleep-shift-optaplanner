@@ -21,6 +21,8 @@ import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
+import javax.swing.JOptionPane;
+
 import org.optaplanner.persistence.common.api.domain.solution.SolutionFileIO;
 import org.thon.sleepshiftsolver.Constants;
 import org.thon.sleepshiftsolver.constraints.BedCannotBeUsedRange;
@@ -224,6 +226,11 @@ public class ZipCsvFileIo implements SolutionFileIO<SleepShiftSchedule> {
 						// Find free bed for this shift
 						u.setBed(Bed.findFreeBed(bedList, userList, staticShift.startTime));
 						if (u.getBed() == null) {
+							JOptionPane.showMessageDialog(
+								null, 
+								"Invalid static shift. No free bed found for " + u.getUsername() + " at " + staticShift.startTime + " (" + Constants.convertTimeToPrettyPrint(staticShift.startTime) + ")",
+								"This solution will probably fail!",
+								JOptionPane.ERROR_MESSAGE);
 							System.out.println("Warning: No free bed found for " + u.getUsername() + " at " + staticShift.startTime + " (" + Constants.convertTimeToPrettyPrint(staticShift.startTime) + ")");
 						}
 					}
@@ -276,15 +283,28 @@ public class ZipCsvFileIo implements SolutionFileIO<SleepShiftSchedule> {
 
 	@Override
 	public void write(SleepShiftSchedule solution, File outputSolutionFile) {
-		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("eee HH:mm");
+		//DateTimeFormatter formatter = DateTimeFormatter.ofPattern("eee HH:mm");
+		DateTimeFormatter formatterDay = DateTimeFormatter.ofPattern("EEEE");
+		DateTimeFormatter formatterTime = DateTimeFormatter.ofPattern("HH:mm");
 		try {
 			BufferedWriter writer = new BufferedWriter(new FileWriter(outputSolutionFile));
+			writer.write("PSU ID,Start Day,Start Time,End Day,End Time,Bed Assignment");
+			writer.newLine();
 			for (User u : solution.getUserList()) {
 				if (u.getSleepShift() != null && u.getBed() != null) {
 					LocalDateTime shiftStart = Constants.START_TIME.plus(Duration.of(30*u.getSleepShiftStartTime(), ChronoUnit.MINUTES));
+					LocalDateTime shiftEnd = Constants.START_TIME.plus(Duration.of(30*u.getSleepShiftEndTime(), ChronoUnit.MINUTES));
 					writer.write(u.getUsername());
 					writer.write(",");
-					writer.write(formatter.format(shiftStart).toUpperCase());
+					writer.write(formatterDay.format(shiftStart));
+					writer.write(",");
+					writer.write(formatterTime.format(shiftStart));
+					writer.write(":00");
+					writer.write(",");
+					writer.write(formatterDay.format(shiftEnd));
+					writer.write(",");
+					writer.write(formatterTime.format(shiftEnd));
+					writer.write(":00");
 					writer.write(",");
 					writer.write(String.valueOf(u.getBed().getName()));
 					writer.newLine();
